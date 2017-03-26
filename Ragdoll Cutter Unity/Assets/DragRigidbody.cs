@@ -78,43 +78,33 @@ namespace UnityStandardAssets.Utility
             }
 
             //Arms
-            if (hit.collider.name == "Hand_L")
-            {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                hit.collider.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                // hit.rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                hit.collider.transform.parent.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-
+            if (hit.collider.name == "Hand_L" || hit.collider.name == "Hand_R")  
+            {                
+                hit.rigidbody.constraints = RigidbodyConstraints.None; 
             }
-            else if (hit.collider.name == "Hand_R")
+            else if(hit.collider.name == "ForeArm_L" || hit.collider.name == "ForeArm_R")
             {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                hit.collider.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                // hit.rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-                hit.collider.transform.parent.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                hit.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                hit.rigidbody.constraints = RigidbodyConstraints.None;
+                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+                
             }
-            //Legs
+            //Feet
             else if (hit.collider.name == "Foot_L" || hit.collider.name == "Foot_R")
             {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;
-                hit.collider.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-                //hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotationY ;
-                hit.collider.transform.parent.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                hit.rigidbody.constraints = RigidbodyConstraints.None;
+            }
+            else if (hit.collider.name == "Shin_L" || hit.collider.name == "Shin_R")
+            {
+                hit.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                hit.rigidbody.constraints = RigidbodyConstraints.None;
+                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             }
             //Head
             else if(hit.collider.name == "Head")
             {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
-            }
-            else if(hit.collider.name == "Chest")
-            {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationX;
-            }
-            else if (hit.collider.name == "Hips")
-            {
-                hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX;
-               // if (hit.transform.position.y < 1) hit.transform.position = new Vector3(hit.transform.position.x, 1, hit.transform.position.z);
-            }
+                hit.rigidbody.constraints = RigidbodyConstraints.None;
+            }            
             else return false;
 
             print("Hitting");
