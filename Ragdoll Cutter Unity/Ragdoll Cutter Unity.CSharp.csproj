@@ -69,12 +69,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Drag2.cs" />
-    <Compile Include="Assets\DragRigidbody.cs" />
-    <Compile Include="Assets\Test.cs" />
+    <Compile Include="Assets\Gameplay.cs" />
+    <Compile Include="Assets\Scripts\DragRigidbody.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Mannequin_Doll\ReadMe.txt" />
+    <None Include="Assets\Assets\Ragdoll\Mannequin_Doll\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
