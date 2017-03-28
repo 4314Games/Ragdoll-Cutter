@@ -3,13 +3,16 @@ using System.Collections;
 
 public class Gameplay : MonoBehaviour {
 
-    public int score;
+    public float score;
+    int currentMana;
+    public int manaRegen;
+    public int maxMana;
 
 	void Start () {
 	
 	}
 	
-	// Update is called once per frame
+	
 	void Update () {
 	
 	}

@@ -14,13 +14,16 @@ namespace UnityStandardAssets.Utility
         const bool k_AttachToCenterOfMass = false;
         RaycastHit hit = new RaycastHit();
         private SpringJoint m_SpringJoint;
-        private bool hitMoveable;
-        private bool rotating;
+        private bool hitMoveable;   //If hit is a moveable/body part
+        private bool rotating;  //if hit is rotating button
         Camera mainCam;
         GameObject ragDoll;
         bool setRoat;   //So i can set previous rotation to new vec3 instead of using old one.
-        float score;
-        float time;
+        public Gameplay gamePlayScript;
+        float buttonHeldTime;   //How long button is held down, used for score calculation
+        GameObject bodyPartRotating; //For dancing score some body parts cant use hit so I set the part here. 
+        bool sameBodyPart;  //If the body part selected is the same selected again, then no score will be added
+        public int scoreTimerMax;   //Stop scoring after this amount of time
 
         void Start()
         {
@@ -33,12 +36,15 @@ namespace UnityStandardAssets.Utility
         {
             if (Input.GetMouseButtonUp(0))  //If mouse up.....
             {
-                if (hitMoveable) StartCoroutine("FreezeAllMovement");   //Freeze ragdoll movement
+                if (hitMoveable)
+                {
+                    StartCoroutine("FreezeAllMovement");   //Freeze ragdoll movement
+                    setRoat = false;
+                }
                 if (rotating)
                 {
                     CancelInvoke("RotateRagdollAntiClockwise");         //Stop characters rotation
                     CancelInvoke("RotateRagdollClockwise");
-                    setRoat = false;
                 }
             }
             if (Input.GetMouseButtonDown(0))            //Finds if an object is hit on mouse click
@@ -50,7 +56,7 @@ namespace UnityStandardAssets.Utility
         IEnumerator FreezeAllMovement()     //Freezes all movements after player finished moving ragdoll
         {
             yield return new WaitForSeconds(0.08f);
-            hit.rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            if (hit.collider.transform.parent.GetComponent<Rigidbody>()) hit.rigidbody.constraints = RigidbodyConstraints.FreezeAll;
             if (hit.collider.transform.parent.GetComponent<Rigidbody>()) hit.collider.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             if (hit.collider.transform.parent.parent.GetComponent<Rigidbody>()) hit.collider.transform.parent.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             print("Movement Froezen");
@@ -68,7 +74,7 @@ namespace UnityStandardAssets.Utility
                 return false;
             }
 
-            if (hit.collider.tag == "Arm" || hit.collider.tag == "Leg") //If its a part of the ragdoll prepare to move
+            if (hit.collider.tag == "Arm" || hit.collider.tag == "Leg" || hit.collider.tag == "Head") //If its a part of the ragdoll prepare to move
             {
                 if (!m_SpringJoint)
                 {
@@ -82,6 +88,8 @@ namespace UnityStandardAssets.Utility
                 if (hit.collider.name == "Hand_L" || hit.collider.name == "Hand_R")
                 {
                     hit.rigidbody.constraints = RigidbodyConstraints.None;
+                    BodyPartChecker(hit.collider.gameObject);
+                    bodyPartRotating = hit.collider.gameObject;
                     hitMoveable = true;
                 }
                 else if (hit.collider.name == "ForeArm_L" || hit.collider.name == "ForeArm_R")
@@ -89,6 +97,8 @@ namespace UnityStandardAssets.Utility
                     hit.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                     hit.rigidbody.constraints = RigidbodyConstraints.None;
                     hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+                    BodyPartChecker(hit.transform.parent.gameObject);
+                    bodyPartRotating = hit.transform.parent.gameObject;
                     hitMoveable = true;
 
                 }
@@ -96,6 +106,8 @@ namespace UnityStandardAssets.Utility
                 else if (hit.collider.name == "Foot_L" || hit.collider.name == "Foot_R")
                 {
                     hit.rigidbody.constraints = RigidbodyConstraints.None;
+                    BodyPartChecker(hit.collider.gameObject);
+                    bodyPartRotating = hit.collider.gameObject;
                     hitMoveable = true;
                 }
                 else if (hit.collider.name == "Shin_L" || hit.collider.name == "Shin_R")
@@ -103,30 +115,39 @@ namespace UnityStandardAssets.Utility
                     hit.transform.parent.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                     hit.rigidbody.constraints = RigidbodyConstraints.None;
                     hit.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+                    BodyPartChecker(hit.collider.gameObject);
+                    bodyPartRotating = hit.collider.gameObject;
                     hitMoveable = true;
                 }
                 //Head
                 else if (hit.collider.name == "Head")
                 {
                     hit.rigidbody.constraints = RigidbodyConstraints.None;
+                    BodyPartChecker(hit.collider.gameObject);
+                    bodyPartRotating = hit.collider.gameObject;
                     hitMoveable = true;
-                }                
+                }
                 StartCoroutine("DragObject", hit.distance);
             }
+            //Rotate Buttons
             if (hit.collider.name == "TurnAnticlockwise")   //If rotate button hit rotate
             {
                 InvokeRepeating("RotateRagdollAntiClockwise", 0.02f, 0.02f);
                 rotating = true;
+                BodyPartChecker(ragDoll);
+                bodyPartRotating = ragDoll;
                 print("Rotating");
             }
             else if (hit.collider.name == "TurnClockwise")  //If rotate button hit rotate
             {
                 InvokeRepeating("RotateRagdollClockwise", 0.02f, 0.02f);
                 rotating = true;
-                print("Rotating");                
+                BodyPartChecker(ragDoll);
+                bodyPartRotating = ragDoll;
+                print("Rotating");
             }
             return true;    //Was using this method as a bool. Not anymore so just return. 
-        } 
+        }
 
         private IEnumerator DragObject(float distance)  //Drags the selected body part of the ragdoll
         {
@@ -143,13 +164,13 @@ namespace UnityStandardAssets.Utility
             var oldAngularDrag = m_SpringJoint.connectedBody.angularDrag;
             m_SpringJoint.connectedBody.drag = k_Drag;
             m_SpringJoint.connectedBody.angularDrag = k_AngularDrag;
-            var mainCamera = FindCamera();           
+            var mainCamera = FindCamera();
             while (Input.GetMouseButton(0))
             {
                 var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
                 m_SpringJoint.transform.position = ray.GetPoint(distance);
-                StartCoroutine(RotationDifference(hit.transform.rotation.x));
-               // print(score);
+                if (hit.collider.tag == "Arm" || hit.collider.tag == "Head") StartCoroutine(RotationDifference(bodyPartRotating.transform.rotation.x));
+                else if (hit.collider.tag == "Leg") StartCoroutine(RotationDifference(bodyPartRotating.transform.rotation.z));
                 yield return null;
             }
             if (m_SpringJoint.connectedBody)
@@ -158,7 +179,7 @@ namespace UnityStandardAssets.Utility
                 m_SpringJoint.connectedBody.angularDrag = oldAngularDrag;
                 m_SpringJoint.connectedBody = null;
             }
-            print("DragObjectFinisihed");          
+            print("DragObjectFinisihed");
         }
 
         private Camera FindCamera() //Returns camera component
@@ -169,31 +190,47 @@ namespace UnityStandardAssets.Utility
             }
             return Camera.main;
         }
-        
+
         void RotateRagdollAntiClockwise()   //Rotate Anit Clockwise
         {
             ragDoll.transform.RotateAround(ragDoll.GetComponent<Collider>().bounds.center, new Vector3(0, 0, 0.5f), 1.0f);
+            StartCoroutine(RotationDifference(bodyPartRotating.transform.rotation.z));
         }
         void RotateRagdollClockwise()       //Rotate Clockwise
         {
             ragDoll.transform.RotateAround(ragDoll.GetComponent<Collider>().bounds.center, new Vector3(0, 0, 0.5f), -1.0f);
+            StartCoroutine(RotationDifference(bodyPartRotating.transform.rotation.z));
         }
 
-        IEnumerator RotationDifference(float rotFloat)
+        IEnumerator RotationDifference(float rotFloat)  //Calculates Score by getting diffence between rotation of ragdoll part
         {
-            yield return new WaitForSeconds(0.1f);
-            if(setRoat == false)
+            yield return new WaitForSeconds(0.1f);  //Gives time for there to be a difference in rotation poisiton
+            if (setRoat == false)    //resets time on mouse up 
             {
-                time = 1;
-                setRoat = true;                   
+                buttonHeldTime = 0;
+                setRoat = true;
             }
-            time += Time.deltaTime * 100;
-            //if (time >= 3) time = 3;
-            if(hit.collider.tag == "Arm")
+            //Time used for score control
+            if (buttonHeldTime >= scoreTimerMax) buttonHeldTime = scoreTimerMax;    //No need to go higher then 3, score stops adding after 3 seconds
+            else buttonHeldTime += Time.deltaTime;
+            if (!sameBodyPart)  //if bodypart  is the same as just held so score added
             {
-                print(Mathf.Abs((hit.transform.rotation.x - rotFloat) / time * 100));
-                score += Mathf.Abs((hit.transform.rotation.x - rotFloat)  / time * 100);
+                //Add score based on rotation pos compared to old pos
+                if (hit.collider.tag == "Arm" || hit.collider.tag == "Head")   //Arm/Head rotations use x axis
+                {
+                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) - (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) * (buttonHeldTime / scoreTimerMax)));
+                }
+                else if (hit.collider.tag == "Leg" || rotating)  //Leg rotation uses z axis
+                {
+                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) - (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) * (buttonHeldTime / scoreTimerMax)));
+                }
             }
+        }
+
+        void BodyPartChecker(GameObject p_gameObject)
+        {
+            if (bodyPartRotating == p_gameObject) sameBodyPart = true;
+            else sameBodyPart = false;
         }
     }
 }

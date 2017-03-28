@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ragdoll Cutter Unity.CSharp", "Ragdoll Cutter Unity.CSharp.csproj", "{7D07562F-FEB3-6396-52C3-FF8F1004E680}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ragdoll Cutter Unity.CSharp.Editor", "Ragdoll Cutter Unity.CSharp.Editor.csproj", "{C900E26D-C503-C099-7350-D13CF1358B22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{7D07562F-FEB3-6396-52C3-FF8F1004E680}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D07562F-FEB3-6396-52C3-FF8F1004E680}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D07562F-FEB3-6396-52C3-FF8F1004E680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C900E26D-C503-C099-7350-D13CF1358B22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C900E26D-C503-C099-7350-D13CF1358B22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C900E26D-C503-C099-7350-D13CF1358B22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C900E26D-C503-C099-7350-D13CF1358B22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
