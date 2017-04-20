@@ -4,16 +4,24 @@ using System.Collections;
 public class Gameplay : MonoBehaviour {
 
     public float score;
-    int currentMana;
-    public int manaRegen;
+    public float currentMana;
+    public float multiplier;
     public int maxMana;
+    public bool hasShield;  //Shield PowerUp
+
 
 	void Start () {
-	
+        InvokeRepeating("GamePlaying", 0.02f, 0.02f);
+        currentMana = maxMana;
 	}
 	
 	
-	void Update () {
-	
+	void GamePlaying () {
+	    
 	}
+
+    public void GameOver()
+    {
+        print("GameOver");
+    }
 }

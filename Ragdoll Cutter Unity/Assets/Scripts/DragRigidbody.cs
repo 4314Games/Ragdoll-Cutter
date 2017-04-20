@@ -62,9 +62,9 @@ namespace UnityStandardAssets.Utility
             print("Movement Froezen");
         }
 
-        bool Hitter()
+        public bool Hitter()
         {
-            print("HitterStart");
+            
             hit = new RaycastHit();
             // We need to actually hit an object
             if (!Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition).origin,
@@ -73,6 +73,10 @@ namespace UnityStandardAssets.Utility
             {
                 return false;
             }
+            
+            if (hit.collider.gameObject.layer != 8) return false;
+
+            print("HitterStart");
 
             if (hit.collider.tag == "Arm" || hit.collider.tag == "Leg" || hit.collider.tag == "Head") //If its a part of the ragdoll prepare to move
             {
@@ -218,11 +222,11 @@ namespace UnityStandardAssets.Utility
                 //Add score based on rotation pos compared to old pos
                 if (hit.collider.tag == "Arm" || hit.collider.tag == "Head")   //Arm/Head rotations use x axis
                 {
-                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) - (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) * (buttonHeldTime / scoreTimerMax)));
+                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) * (gamePlayScript.multiplier + 1) - (Mathf.Abs(bodyPartRotating.transform.rotation.z - rotFloat) * (buttonHeldTime / scoreTimerMax)) * (gamePlayScript.multiplier + 1));
                 }
                 else if (hit.collider.tag == "Leg" || rotating)  //Leg rotation uses z axis
                 {
-                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) - (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) * (buttonHeldTime / scoreTimerMax)));
+                    gamePlayScript.score += (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) * (gamePlayScript.multiplier + 1) - (Mathf.Abs(bodyPartRotating.transform.rotation.x - rotFloat) * (buttonHeldTime / scoreTimerMax) * (gamePlayScript.multiplier + 1)));
                 }
             }
         }
